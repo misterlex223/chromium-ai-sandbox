@@ -75,6 +75,10 @@ COPY config/skill.md /tmp/claude-skill.md
 # 權限配置 → /home/flexy/.claude/settings.local.json
 COPY config/settings.local.json /tmp/settings.local.json
 
+# 複製 Frontend Tester Plugin (由 init-chromium-sandbox.sh 安裝到容器內)
+# 安裝到 /home/flexy/.claude/plugins/frontend-tester
+COPY sandbox-plugins/frontend-tester /tmp/frontend-tester-plugin
+
 # 複製文檔
 COPY docs/CHROMIUM-GUIDE.md /home/flexy/docs/
 
