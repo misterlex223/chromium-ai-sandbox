@@ -3,8 +3,8 @@
     "servers": {
       "playwright": {
         "command": "npx",
-        "args": ["@microsoft/playwright-mcp"],
-        "description": "Microsoft Playwright MCP Server - AI browser automation"
+        "args": ["@playwright/mcp"],
+        "description": "Playwright MCP Server - AI browser automation"
       }
     }
   }

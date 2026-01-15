@@ -54,9 +54,9 @@ RUN npm install -g playwright && \
     npx playwright install --with-deps chromium && \
     npx playwright install-deps chromium
 
-# 安裝 Microsoft Playwright MCP Server
+# 安裝 Playwright MCP Server
 # 讓 Claude Code 和其他 MCP 客戶端能夠控制瀏覽器
-RUN npm install -g @microsoft/playwright-mcp
+RUN npm install -g @playwright/mcp
 
 # 複製 chromium-sandbox 特定的腳本
 COPY scripts/start-xvfb.sh /scripts/start-xvfb.sh

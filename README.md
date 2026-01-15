@@ -95,7 +95,7 @@ Claude: 會自動導航、提取資料、回傳結果
     "servers": {
       "playwright": {
         "command": "npx",
-        "args": ["@microsoft/playwright-mcp"]
+        "args": ["@playwright/mcp"]
       }
     }
   }
@@ -187,7 +187,7 @@ chromium-ai-sandbox/
 ./scripts/test-chromium.sh
 
 # 測試 MCP 工具
-docker exec -it chromium-test npx @microsoft/playwright-mcp
+docker exec -it chromium-test npx @playwright/mcp
 ```
 
 ## 文件

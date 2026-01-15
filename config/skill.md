@@ -142,7 +142,7 @@ await browser.close();
 - 查看錯誤訊息並截圖
 
 ### MCP 工具無回應
-- 確認 `@microsoft/playwright-mcp` 已安裝
+- 確認 `@playwright/mcp` 已安裝
 - 檢查 `/home/flexy/.claude/.mcp.json` 配置
 - 重新啟動 Claude Code
 
