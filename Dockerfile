@@ -5,6 +5,12 @@ FROM ghcr.io/misterlex223/flexy-sandbox:latest
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Set timezone to avoid interactive tzdata prompt
+ARG TZ=Etc/UTC
+ENV TZ=${TZ}
+RUN sudo ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ | sudo tee /etc/timezone
+
 # ============================================================================
 # Chromium Sandbox: 安裝 Xvfb、VNC、noVNC、Chromium 相關套件
 # ============================================================================

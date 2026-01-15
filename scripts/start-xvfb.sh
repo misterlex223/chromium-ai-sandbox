@@ -90,7 +90,7 @@ if [ "$CHROMIUM_MODE" = "vnc" ]; then
 
   # 啟動 noVNC
   echo "Starting noVNC..."
-  /opt/noVNC/utils/novnc_proxy --vnc localhost:$VNC_PORT --port $NOVNC_PORT > /home/flexy/novnc.log 2>&1 &
+  /opt/noVNC/utils/novnc_proxy --listen $NOVNC_PORT --vnc localhost:$VNC_PORT > /home/flexy/novnc.log 2>&1 &
   NOVNC_PID=$!
   echo "noVNC started (PID: $NOVNC_PID)"
   echo ""
