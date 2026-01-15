@@ -65,6 +65,40 @@ if [ ! -f /home/flexy/.claude/.__flexy_initialized__ ]; then
   touch /home/flexy/.claude/.__flexy_initialized__
 fi
 
+# 初始化 Claude Code 配置（結合預設配置和使用者配置）
+echo "Initializing Claude Code configuration..."
+mkdir -p /home/flexy/.claude
+
+# 1. 安裝 MCP 配置 → /home/flexy/.claude/.mcp.json
+if [ ! -f /home/flexy/.claude/.mcp.json ] && [ -f /tmp/mcp-config.json ]; then
+  cp /tmp/mcp-config.json /home/flexy/.claude/.mcp.json
+  echo "✓ MCP configuration installed"
+  echo "  - Playwright MCP Server enabled"
+  echo "  - Tools: launch_browser, navigate, click, fill, screenshot, etc."
+elif [ -f /home/flexy/.claude/.mcp.json ]; then
+  echo "✓ Using existing MCP configuration"
+else
+  echo "⚠ No MCP configuration found"
+fi
+
+# 2. 安裝 Skill → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
+if [ ! -f /home/flexy/.claude/skills/chromium-sandbox/SKILL.md ] && [ -f /tmp/claude-skill.md ]; then
+  mkdir -p /home/flexy/.claude/skills/chromium-sandbox
+  cp /tmp/claude-skill.md /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
+  echo "✓ Chromium Sandbox skill installed"
+  echo "  - Location: /home/flexy/.claude/skills/chromium-sandbox/SKILL.md"
+elif [ -f /home/flexy/.claude/skills/chromium-sandbox/SKILL.md ]; then
+  echo "✓ Using existing Chromium Sandbox skill"
+fi
+
+# 3. 安裝權限配置 → /home/flexy/.claude/settings.local.json
+if [ ! -f /home/flexy/.claude/settings.local.json ] && [ -f /tmp/settings.local.json ]; then
+  cp /tmp/settings.local.json /home/flexy/.claude/settings.local.json
+  echo "✓ Claude Code permissions installed"
+elif [ -f /home/flexy/.claude/settings.local.json ]; then
+  echo "✓ Using existing permissions configuration"
+fi
+
 # 設定 Git 初始配置
 if [ ! -f /home/flexy/.gitconfig ]; then
   GIT_USERNAME=${GIT_USERNAME:-"Flexy"}

@@ -54,6 +54,10 @@ RUN npm install -g playwright && \
     npx playwright install --with-deps chromium && \
     npx playwright install-deps chromium
 
+# 安裝 Microsoft Playwright MCP Server
+# 讓 Claude Code 和其他 MCP 客戶端能夠控制瀏覽器
+RUN npm install -g @microsoft/playwright-mcp
+
 # 複製 chromium-sandbox 特定的腳本
 COPY scripts/start-xvfb.sh /scripts/start-xvfb.sh
 COPY scripts/test-chromium.sh /scripts/test-chromium.sh
@@ -62,6 +66,14 @@ RUN sudo chmod +x /scripts/start-xvfb.sh /scripts/test-chromium.sh
 # 複製範例程式
 COPY examples/ /home/flexy/examples/
 RUN sudo chown -R flexy:flexy /home/flexy/examples
+
+# 複製 Claude Code 配置檔 (由 init-chromium-sandbox.sh 安裝到容器內)
+# MCP 配置 → /home/flexy/.claude/.mcp.json
+COPY config/.mcp.json /tmp/mcp-config.json
+# Skill 說明 → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
+COPY config/skill.md /tmp/claude-skill.md
+# 權限配置 → /home/flexy/.claude/settings.local.json
+COPY config/settings.local.json /tmp/settings.local.json
 
 # 複製文檔
 COPY docs/CHROMIUM-GUIDE.md /home/flexy/docs/

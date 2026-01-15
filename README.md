@@ -2,16 +2,16 @@
 
 > 瀏覽器自動化沙盒環境，讓 AI 模型能在 Docker 容器中進行前端 App 測試任務
 
-Chromium AI Sandbox 是基於 [flexy-sandbox](https://github.com/misterlex223/flexy-sandbox) 擴展的 Docker 映像，整合了 **Xvfb + Chromium + Playwright + VNC**，提供完整的瀏覽器自動化測試環境。
+Chromium AI Sandbox 是基於 [flexy-sandbox](https://github.com/misterlex223/flexy-sandbox) 擴展的 Docker 映像，整合了 **Xvfb + Chromium + Playwright + VNC + MCP**，提供完整的瀏覽器自動化測試環境。
 
 ## 特性
 
-- 🤖 **AI 友好設計** - 簡化的 API，讓 AI 模型容易操作瀏覽器
+- 🤖 **AI 友好設計** - 內建 Microsoft Playwright MCP Server
 - 🌐 **Chromium 瀏覽器** - 最新版本的 Chromium 瀏覽器
 - 🎭 **Playwright 框架** - 現代化的瀏覽器自動化框架
 - 🖥️ **Xvfb 虛擬顯示** - 無需實體顯示器即可運行 GUI 應用
 - 🔍 **VNC 遠端觀看** - 透過 noVNC 在瀏覽器中查看測試過程
-- 📦 **All-in-One** - 單一 Docker 映像包含所有必要組件
+- 🔌 **MCP 支援** - Claude Code 原生支援，無需編寫程式碼
 
 ## 快速開始
 
@@ -45,6 +45,63 @@ docker run -it --rm \
 
 然後在瀏覽器開啟：**http://localhost:6900**
 
+## Claude Code + MCP
+
+chromium-ai-sandbox 內建 **Microsoft Playwright MCP Server**，啟動容器後，Claude Code 可以直接使用瀏覽器自動化工具。
+
+### MCP 提供的工具
+
+| 工具 | 說明 |
+|------|------|
+| `launch_browser` | 啟動瀏覽器 |
+| `close_browser` | 關閉瀏覽器 |
+| `navigate_to` | 導航到指定 URL |
+| `screenshot` | 截取頁面截圖 |
+| `click` | 點擊頁面元素 |
+| `fill` | 填寫表單輸入框 |
+| `select` | 選擇下拉選項 |
+| `hover` | 滑鼠懸停 |
+| `get_text` | 獲取元素文字 |
+| `get_url` | 獲取當前 URL |
+| `go_back` | 返回上一頁 |
+| `go_forward` | 前往下一頁 |
+| `evaluate` | 執行 JavaScript |
+
+### 使用範例
+
+在 Claude Code 中：
+
+```bash
+# 啟動瀏覽器並訪問網站
+User: "幫我開啟瀏覽器，訪問 https://example.com，然後截圖"
+Claude: 會自動呼叫 MCP 工具完成任務
+
+# 測試登入功能
+User: "測試我的登入頁面，帳號是 test@example.com，密碼是 password123"
+Claude: 會自動導航、填寫表單、點擊登入、驗證結果
+
+# 網頁爬蟲
+User: "幫我抓取這個頁面的所有文章標題"
+Claude: 會自動導航、提取資料、回傳結果
+```
+
+### MCP 配置
+
+容器啟動後，MCP 配置會自動安裝到 `/home/flexy/.claude/.mcp.json`：
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["@microsoft/playwright-mcp"]
+      }
+    }
+  }
+}
+```
+
 ## 運行模式
 
 | 模式 | 說明 | VNC | 用途 |
@@ -62,7 +119,7 @@ docker run -it --rm \
 | `CHROMIUM_RESOLUTION` | `1920x1080x24` | 虛擬顯示解析度 |
 | `NOVNC_PORT` | `6900` | noVNC Web 端口 |
 
-## 使用範例
+## 進階使用
 
 ### 基礎 Playwright
 
@@ -79,7 +136,7 @@ await page.screenshot({ path: '/tmp/screenshot.png' });
 await browser.close();
 ```
 
-### AI Helper（推薦）
+### AI Helper
 
 ```javascript
 const { createHelper } = require('/home/flexy/examples/ai-playwright-helper.js');
@@ -99,11 +156,14 @@ await browser.close();
 chromium-ai-sandbox/
 ├── Dockerfile                          # Docker 映像定義
 ├── README.md                           # 本文件
+├── config/
+│   └── mcp.json                        # MCP 配置模板
 ├── docs/
 │   └── CHROMIUM-GUIDE.md               # 詳細使用指南
 ├── examples/
 │   ├── playwright-example.js           # Playwright 基礎範例
-│   └── ai-playwright-helper.js         # AI 友好的 API 包裝層
+│   ├── ai-playwright-helper.js         # AI 友好的 API 包裝層
+│   └── keep-open.js                    # 保持瀏覽器開啟範例
 └── scripts/
     ├── init-chromium-sandbox.sh        # 容器初始化腳本
     ├── start-xvfb.sh                   # Xvfb/VNC 啟動腳本
@@ -125,6 +185,9 @@ chromium-ai-sandbox/
 ```bash
 # 在容器內執行測試
 ./scripts/test-chromium.sh
+
+# 測試 MCP 工具
+docker exec -it chromium-test npx @microsoft/playwright-mcp
 ```
 
 ## 文件
@@ -138,5 +201,6 @@ MIT License
 ## 相關專案
 
 - [flexy-sandbox](https://github.com/misterlex223/flexy-sandbox) - 基礎開發環境
+- [Microsoft Playwright MCP](https://github.com/microsoft/playwright-mcp) - MCP Server 實作
 - [Playwright](https://playwright.dev/) - 瀏覽器自動化框架
 - [noVNC](https://github.com/novnc/noVNC) - HTML5 VNC 客戶端
