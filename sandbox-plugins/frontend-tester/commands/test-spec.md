@@ -67,7 +67,25 @@ allowed-tools: ["Read", "Write", "Bash", "Grep", "Glob", "TodoWrite"]
 2. navigate_to [URL]
 3. [執行測試步驟]
 4. screenshot
-5. 驗證結果
+5. **檢查 browser_console_messages**
+6. 驗證結果
+```
+
+**Console 檢查步驟** (每個測試場景必須執行):
+
+```
+使用 browser_console_messages 工具獲取 console 訊息
+- level="error" - 檢查錯誤訊息
+- level="warning" - 檢查警告訊息
+
+如果有錯誤:
+  - 測試結果標記為「失敗」
+  - 記錄錯誤訊息內容
+  - 記錄錯誤來源 (檔案:行號)
+
+如果有警告:
+  - 測試結果標記為「警告」
+  - 記錄警告訊息內容
 ```
 
 #### 人工檢查
@@ -88,6 +106,11 @@ allowed-tools: ["Read", "Write", "Bash", "Grep", "Glob", "TodoWrite"]
 📄 測試報告: test-reports/test-report-[timestamp].md
 ```
 
+**報告必須包含**:
+- Console 錯誤摘要 (錯誤數量、警告數量)
+- 每個失敗測試的 console 錯誤訊息
+- 錯誤來源 (檔案名稱和行號)
+
 ## 範例
 
 ### 範例 1: 測試登入功能
@@ -104,12 +127,14 @@ allowed-tools: ["Read", "Write", "Bash", "Grep", "Glob", "TodoWrite"]
 - 人工檢查: 2 個
 
 ⏳ 開始執行測試...
-✅ 場景 1: 正常登入
-✅ 場景 2: 無效電子郵件
-❌ 場景 3: 錯誤密碼
+✅ 場景 1: 正常登入 | Console: 無錯誤
+✅ 場景 2: 無效電子郵件 | Console: 無錯誤
+❌ 場景 3: 錯誤密碼 | Console: 1 個錯誤
+   🔴 Error: "UnauthorizedError: Invalid credentials" (api.js:25)
 ⏳ 場景 4: 視覺檢查 (需人工驗證)
 
 📊 測試完成: 2/3 通過
+📋 Console 摘要: 1 錯誤, 0 警告
 📄 報告已生成: test-reports/test-report-2025-01-15-login.md
 ```
 
@@ -127,6 +152,8 @@ allowed-tools: ["Read", "Write", "Bash", "Grep", "Glob", "TodoWrite"]
 | 規格格式錯誤 | 指出錯誤位置並提供修正建議 |
 | Playwright 未啟動 | 提示啟動 MCP Server |
 | 測試 URL 無法訪問 | 記錄錯誤並繼續其他測試 |
+| **Console 發現錯誤** | **測試標記失敗，記錄錯誤訊息和來源** |
+| **Console 發現警告** | **測試標記警告，記錄警告訊息** |
 
 ## 相關命令
 

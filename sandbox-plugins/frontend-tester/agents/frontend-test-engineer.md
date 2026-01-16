@@ -66,6 +66,32 @@ await click("button#submit");
 await screenshot("test-result.png");
 ```
 
+#### **Browser Console 檢查**
+
+**重要**: 每個測試段落執行後，必須檢查 browser console 是否有錯誤訊息。
+
+使用 `browser_console_messages` 工具獲取 console 訊息：
+
+```javascript
+// 獲取所有 console 訊息（包含 error, warning, info, debug）
+const consoleMessages = await browser_console_messages({ level: "debug" });
+
+// 過濾出錯誤和警告
+const errors = consoleMessages.filter(msg => msg.type === 'error');
+const warnings = consoleMessages.filter(msg => msg.type === 'warning');
+```
+
+**Console 檢查時機**:
+1. 每個測試場景執行完成後
+2. 導航到新頁面後
+3. 執行關鍵操作後（如表單提交、API 調用）
+4. 測試結束時
+
+**錯誤訊息處理**:
+- 如果發現 `error` 級別的訊息，測試結果應標記為「失敗」
+- 如果發現 `warning` 級別的訊息，測試結果應標記為「警告」
+- 所有 console 錯誤訊息必須記錄在測試報告中
+
 #### 人工檢查項目
 
 對於無法自動化的項目，產生檢查清單：
@@ -128,15 +154,22 @@ await screenshot("test-result.png");
 **失敗原因**:
 表單驗證未正確觸發，錯誤訊息元素 `.error-message` 未找到。
 
+**Browser Console 錯誤**:
+```
+❌ Error: Uncaught TypeError: Cannot read property 'value' of null
+   at handleSubmit (form.js:42:15)
+❌ Error: Form submission handler not attached
+```
+
 **截圖**:
 ![場景 2 失敗截圖](screenshots/scene-2-failed.png)
 
 ## 問題清單
 
-| ID | 嚴重度 | 場景 | 描述 | 建議修正 |
-|----|--------|------|------|---------|
-| 1 | 🔴 高 | 場景 2 | 表單驗證失效 | 檢查表單 submit 事件監聽器 |
-| 2 | 🟡 中 | 場景 5 | 按鈕 hover 效果不一致 | 統一按鈕樣式變數 |
+| ID | 嚴重度 | 場景 | 描述 | Console 錯誤 | 建議修正 |
+|----|--------|------|------|-------------|---------|
+| 1 | 🔴 高 | 場景 2 | 表單驗證失效 | `TypeError: Cannot read property 'value' of null` | 檢查表單 submit 事件監聽器 |
+| 2 | 🟡 中 | 場景 5 | 按鈕 hover 效果不一致 | `Warning: Invalid CSS property` | 統一按鈕樣式變數 |
 
 ## 建議
 
@@ -177,5 +210,7 @@ await screenshot("test-result.png");
 
 1. 測試前先確認規格文件格式正確
 2. 自動化測試失敗時，記錄詳細錯誤訊息
-3. 人工檢查項目請明確列出，讓開發者知道需要驗證什麼
-4. 報告中的截圖路徑使用相對路徑，便於查看
+3. **每次測試段落完成後，使用 `browser_console_messages` 檢查 console**
+4. **發現 console 錯誤時，必須將錯誤訊息記錄在測試報告中**
+5. 人工檢查項目請明確列出，讓開發者知道需要驗證什麼
+6. 報告中的截圖路徑使用相對路徑，便於查看

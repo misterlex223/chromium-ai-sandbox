@@ -61,6 +61,48 @@ version: 1.0.0
 
 ## Playwright 測試範例
 
+### **Browser Console 監控 (重要)**
+
+**必須在每個測試階段後檢查 browser console，記錄錯誤和警告訊息。**
+
+使用 Playwright MCP 的 `browser_console_messages` 工具：
+
+```javascript
+// 獲取所有 console 訊息（包含 error, warning, info, debug）
+const consoleMessages = await browser_console_messages({ level: "debug" });
+
+// 分析 console 結果
+if (consoleMessages.errors && consoleMessages.errors.length > 0) {
+  console.log("❌ 發現 Console 錯誤:");
+  consoleMessages.errors.forEach(err => {
+    console.log(`  - ${err.text}`);
+    console.log(`    位置: ${err.url}:${err.lineNumber}`);
+  });
+  // 標記測試失敗
+}
+
+if (consoleMessages.warnings && consoleMessages.warnings.length > 0) {
+  console.log("⚠️ 發現 Console 警告:");
+  consoleMessages.warnings.forEach(warn => {
+    console.log(`  - ${warn.text}`);
+  });
+  // 標記測試有警告
+}
+```
+
+**Console 檢查時機**:
+- ✅ 每個測試場景執行完成後
+- ✅ 頁面導航後
+- ✅ 執行關鍵操作後（表單提交、按鈕點擊等）
+- ✅ 測試全部結束時
+
+**Console 錯誤處理規則**:
+| Console 級別 | 測試結果 | 說明 |
+|-------------|---------|------|
+| `error` | ❌ 失敗 | 必須修復的 JavaScript 錯誤 |
+| `warning` | ⚠️ 警告 | 建議修復的問題 |
+| `info` / `debug` | ✅ 忽略 | 僅供參考 |
+
 ### 基本測試
 
 ```javascript
@@ -72,6 +114,12 @@ await page.screenshot({ path: 'home.png' });
 await page.fill('[name="email"]', 'user@example.com');
 await page.fill('[name="password"]', 'password123');
 await page.click('button[type="submit"]');
+
+// 檢查 console 錯誤
+const consoleMsgs = await browser_console_messages({ level: "error" });
+if (consoleMsgs.length > 0) {
+  throw new Error(`Console 發現錯誤: ${consoleMsgs.join(', ')}`);
+}
 
 // 驗證結果
 await expect(page).toHaveURL(/dashboard/);
@@ -120,11 +168,15 @@ await expect(page.locator('.modal')).toBeVisible();
 - 失敗: N
 - 通過率: N%
 
+## Console 錯誤摘要
+- 錯誤數量: N
+- 警告數量: N
+
 ## 詳細結果
-[各測試場景的詳細結果]
+[各測試場景的詳細結果，包含每個場景的 console 檢查結果]
 
 ## 問題清單
-[發現的問題]
+[發現的問題，包含 console 錯誤訊息]
 
 ## 建議
 [改進建議]
