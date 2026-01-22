@@ -99,17 +99,9 @@ elif [ -f /home/flexy/.claude/settings.local.json ]; then
   echo "✓ Using existing permissions configuration"
 fi
 
-# 4. 安裝 Frontend Tester Plugin → /home/flexy/.claude/plugins/frontend-tester
-if [ ! -d /home/flexy/.claude/plugins/frontend-tester ] && [ -d /tmp/frontend-tester-plugin ]; then
-  mkdir -p /home/flexy/.claude/plugins
-  cp -r /tmp/frontend-tester-plugin /home/flexy/.claude/plugins/frontend-tester
-  echo "✓ Frontend Tester plugin installed"
-  echo "  - /test-spec: 執行前端測試"
-  echo "  - /test-spec-template: 產生規格範本"
-  echo "  - Agent: frontend-test-engineer"
-elif [ -d /home/flexy/.claude/plugins/frontend-tester ]; then
-  echo "✓ Using existing Frontend Tester plugin"
-fi
+# 注意: Frontend Tester Plugin 已移至 aintandem-agent-team marketplace
+# 請使用 Claude Code 的 marketplace 功能安裝:
+# https://github.com/misterlex223/aintandem-agent-team
 
 # 設定 Git 初始配置
 if [ ! -f /home/flexy/.gitconfig ]; then

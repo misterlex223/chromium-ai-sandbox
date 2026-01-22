@@ -75,9 +75,9 @@ COPY config/skill.md /tmp/claude-skill.md
 # 權限配置 → /home/flexy/.claude/settings.local.json
 COPY config/settings.local.json /tmp/settings.local.json
 
-# 複製 Frontend Tester Plugin (由 init-chromium-sandbox.sh 安裝到容器內)
-# 安裝到 /home/flexy/.claude/plugins/frontend-tester
-COPY sandbox-plugins/frontend-tester /tmp/frontend-tester-plugin
+# 注意: Frontend Tester Plugin 已移至 aintandem-agent-team marketplace
+# 請使用 Claude Code 的 marketplace 功能安裝:
+# https://github.com/misterlex223/aintandem-agent-team
 
 # 複製文檔
 COPY docs/CHROMIUM-GUIDE.md /home/flexy/docs/
