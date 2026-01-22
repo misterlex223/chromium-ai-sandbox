@@ -102,6 +102,16 @@ ENV NOVNC_PORT=6900
 # VNC_PASSWORD: VNC 連線密碼
 ENV VNC_PASSWORD=dockerSandbox
 
+# ============================================================================
+# Claude Code & Plugin Marketplace 環境變數 (繼承自 flexy-sandbox)
+# ============================================================================
+# AI_WINDOW_1_TYPE: 設定為 "claude" 以自動安裝 Claude Code
+# AUTO_INSTALL_FRONTEND_TESTER: 自動安裝 frontend-tester plugin (true|false, default: true)
+#
+# 範例: docker run -e AI_WINDOW_1_TYPE=claude -e AUTO_INSTALL_FRONTEND_TESTER=true ...
+ENV AI_WINDOW_1_TYPE=claude
+ENV AUTO_INSTALL_FRONTEND_TESTER=true
+
 # Set working directory
 WORKDIR /home/flexy/workspace
 

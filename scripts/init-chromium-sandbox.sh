@@ -59,49 +59,75 @@ if [ ! -f /home/flexy/.qwen/.__flexy_initialized__ ]; then
   touch /home/flexy/.qwen/.__flexy_initialized__
 fi
 
+# ============================================================================
+# Claude Code 初始化（僅首次執行）
+# ============================================================================
 if [ ! -f /home/flexy/.claude/.__flexy_initialized__ ]; then
-  echo "Initializing Claude Code configuration..."
+  echo "========================================"
+  echo "  Claude Code 首次初始化"
+  echo "========================================"
   mkdir -p /home/flexy/.claude
+
+  # 1. 安裝 MCP 配置 → /home/flexy/.claude/.mcp.json
+  if [ -f /tmp/mcp-config.json ]; then
+    cp /tmp/mcp-config.json /home/flexy/.claude/.mcp.json
+    echo "✓ MCP configuration installed"
+    echo "  - Playwright MCP Server enabled"
+  fi
+
+  # 2. 安裝 Skill → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
+  if [ -f /tmp/claude-skill.md ]; then
+    mkdir -p /home/flexy/.claude/skills/chromium-sandbox
+    cp /tmp/claude-skill.md /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
+    echo "✓ Chromium Sandbox skill installed"
+  fi
+
+  # 3. 安裝權限配置 → /home/flexy/.claude/settings.local.json
+  if [ -f /tmp/settings.local.json ]; then
+    cp /tmp/settings.local.json /home/flexy/.claude/settings.local.json
+    echo "✓ Claude Code permissions installed"
+  fi
+
+  # 4. 配置 Plugin Marketplace（僅在 Claude Code 已安裝時）
+  if command -v claude &> /dev/null; then
+    echo ""
+    echo "配置 Plugin Marketplace..."
+
+    MARKETPLACE_NAME="aintandem-agent-team"
+    MARKETPLACE_SOURCE="https://github.com/misterlex223/aintandem-agent-team"
+
+    # 添加 marketplace
+    echo "Adding marketplace: $MARKETPLACE_NAME"
+    if claude plugin marketplace add "$MARKETPLACE_SOURCE" 2>/dev/null; then
+      echo "✓ Added marketplace: $MARKETPLACE_NAME"
+    else
+      echo "⚠ Failed to add marketplace"
+    fi
+
+    # 自動安裝 frontend-tester plugin
+    if [ "${AUTO_INSTALL_FRONTEND_TESTER:-true}" = "true" ]; then
+      echo "Installing plugin: frontend-tester"
+      if claude plugin install "frontend-tester@$MARKETPLACE_NAME" 2>/dev/null; then
+        echo "✓ Installed plugin: frontend-tester"
+        echo "  - /test-spec: 執行前端測試"
+        echo "  - /test-spec-template: 產生規格範本"
+        echo "  - Agent: frontend-test-engineer"
+      else
+        echo "⚠ Failed to install plugin (run manually):"
+        echo "  claude plugin install frontend-tester@$MARKETPLACE_NAME"
+      fi
+    fi
+  else
+    echo "⚠ Claude Code not found, skipping plugin installation"
+  fi
+
+  # 創建初始化標記
   touch /home/flexy/.claude/.__flexy_initialized__
-fi
-
-# 初始化 Claude Code 配置（結合預設配置和使用者配置）
-echo "Initializing Claude Code configuration..."
-mkdir -p /home/flexy/.claude
-
-# 1. 安裝 MCP 配置 → /home/flexy/.claude/.mcp.json
-if [ ! -f /home/flexy/.claude/.mcp.json ] && [ -f /tmp/mcp-config.json ]; then
-  cp /tmp/mcp-config.json /home/flexy/.claude/.mcp.json
-  echo "✓ MCP configuration installed"
-  echo "  - Playwright MCP Server enabled"
-  echo "  - Tools: launch_browser, navigate, click, fill, screenshot, etc."
-elif [ -f /home/flexy/.claude/.mcp.json ]; then
-  echo "✓ Using existing MCP configuration"
+  echo ""
+  echo "✓ Claude Code 初始化完成"
 else
-  echo "⚠ No MCP configuration found"
+  echo "✓ Claude Code 已初始化（跳過）"
 fi
-
-# 2. 安裝 Skill → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
-if [ ! -f /home/flexy/.claude/skills/chromium-sandbox/SKILL.md ] && [ -f /tmp/claude-skill.md ]; then
-  mkdir -p /home/flexy/.claude/skills/chromium-sandbox
-  cp /tmp/claude-skill.md /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
-  echo "✓ Chromium Sandbox skill installed"
-  echo "  - Location: /home/flexy/.claude/skills/chromium-sandbox/SKILL.md"
-elif [ -f /home/flexy/.claude/skills/chromium-sandbox/SKILL.md ]; then
-  echo "✓ Using existing Chromium Sandbox skill"
-fi
-
-# 3. 安裝權限配置 → /home/flexy/.claude/settings.local.json
-if [ ! -f /home/flexy/.claude/settings.local.json ] && [ -f /tmp/settings.local.json ]; then
-  cp /tmp/settings.local.json /home/flexy/.claude/settings.local.json
-  echo "✓ Claude Code permissions installed"
-elif [ -f /home/flexy/.claude/settings.local.json ]; then
-  echo "✓ Using existing permissions configuration"
-fi
-
-# 注意: Frontend Tester Plugin 已移至 aintandem-agent-team marketplace
-# 請使用 Claude Code 的 marketplace 功能安裝:
-# https://github.com/misterlex223/aintandem-agent-team
 
 # 設定 Git 初始配置
 if [ ! -f /home/flexy/.gitconfig ]; then
