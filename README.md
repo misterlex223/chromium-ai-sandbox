@@ -47,7 +47,9 @@ docker run -it --rm \
 
 ## Claude Code + MCP
 
-chromium-ai-sandbox 內建 **Microsoft Playwright MCP Server**，啟動容器後，Claude Code 可以直接使用瀏覽器自動化工具。
+chromium-ai-sandbox 內建 **Microsoft Playwright MCP Server**，透過 `frontend-tester` plugin 提供。啟動容器後，Claude Code 可以直接使用瀏覽器自動化工具。
+
+> **Plugin 安裝**: `frontend-tester` plugin 會在容器首次啟動時，自動從 `aintandem-agent-team` marketplace 安裝。
 
 ### MCP 提供的工具
 
@@ -87,19 +89,14 @@ Claude: 會自動導航、提取資料、回傳結果
 
 ### MCP 配置
 
-容器啟動後，MCP 配置會自動安裝到 `/home/flexy/.claude/.mcp.json`：
+容器啟動後，`frontend-tester` plugin 會自動安裝，並提供 Playwright MCP Server。
 
-```json
-{
-  "mcp": {
-    "servers": {
-      "playwright": {
-        "command": "npx",
-        "args": ["@playwright/mcp"]
-      }
-    }
-  }
-}
+Plugin 會透過 wrapper script (`/usr/local/bin/playwright-mcp-wrapper.sh`) 啟動 MCP server，確保環境變數（如 `DISPLAY`）正確設定。
+
+**手動安裝 Plugin**（如需重新安裝）：
+```bash
+claude plugin marketplace add https://github.com/misterlex223/aintandem-agent-team
+claude plugin install frontend-tester@aintandem-agent-team
 ```
 
 ## 運行模式
@@ -157,7 +154,8 @@ chromium-ai-sandbox/
 ├── Dockerfile                          # Docker 映像定義
 ├── README.md                           # 本文件
 ├── config/
-│   └── mcp.json                        # MCP 配置模板
+│   ├── skill.md                        # Claude Code Skill 說明
+│   └── settings.local.json             # Claude Code 權限配置
 ├── docs/
 │   └── CHROMIUM-GUIDE.md               # 詳細使用指南
 ├── examples/
@@ -166,6 +164,7 @@ chromium-ai-sandbox/
 │   └── keep-open.js                    # 保持瀏覽器開啟範例
 └── scripts/
     ├── init-chromium-sandbox.sh        # 容器初始化腳本
+    ├── playwright-mcp-wrapper.sh       # Playwright MCP wrapper script
     ├── start-xvfb.sh                   # Xvfb/VNC 啟動腳本
     └── test-chromium.sh                # 測試腳本
 ```

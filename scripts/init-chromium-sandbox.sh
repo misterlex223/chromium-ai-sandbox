@@ -5,6 +5,12 @@
 # 此腳本是 flexy-sandbox init.sh 的擴展版本
 # 它會先執行原本的 flexy-sandbox 初始化，然後啟動 Xvfb/VNC 服務
 #
+# MCP 配置說明：
+# - Playwright MCP Server 現由 frontend-tester plugin 提供
+# - frontend-tester plugin 從 aintandem-agent-team marketplace 安裝
+# - MCP server 透過 wrapper script (/usr/local/bin/playwright-mcp-wrapper.sh) 啟動
+#   確保環境變數 (DISPLAY, CHROMIUM_MODE 等) 正確設定
+#
 
 set -e
 
@@ -68,27 +74,20 @@ if [ ! -f /home/flexy/.claude/.__flexy_initialized__ ]; then
   echo "========================================"
   mkdir -p /home/flexy/.claude
 
-  # 1. 安裝 MCP 配置 → /home/flexy/.claude/.mcp.json
-  if [ -f /tmp/mcp-config.json ]; then
-    cp /tmp/mcp-config.json /home/flexy/.claude/.mcp.json
-    echo "✓ MCP configuration installed"
-    echo "  - Playwright MCP Server enabled"
-  fi
-
-  # 2. 安裝 Skill → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
+  # 1. 安裝 Skill → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
   if [ -f /tmp/claude-skill.md ]; then
     mkdir -p /home/flexy/.claude/skills/chromium-sandbox
     cp /tmp/claude-skill.md /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
     echo "✓ Chromium Sandbox skill installed"
   fi
 
-  # 3. 安裝權限配置 → /home/flexy/.claude/settings.local.json
+  # 2. 安裝權限配置 → /home/flexy/.claude/settings.local.json
   if [ -f /tmp/settings.local.json ]; then
     cp /tmp/settings.local.json /home/flexy/.claude/settings.local.json
     echo "✓ Claude Code permissions installed"
   fi
 
-  # 4. 配置 Plugin Marketplace（僅在 Claude Code 已安裝時）
+  # 3. 配置 Plugin Marketplace（僅在 Claude Code 已安裝時）
   if command -v claude &> /dev/null; then
     echo ""
     echo "配置 Plugin Marketplace..."
@@ -104,11 +103,12 @@ if [ ! -f /home/flexy/.claude/.__flexy_initialized__ ]; then
       echo "⚠ Failed to add marketplace"
     fi
 
-    # 自動安裝 frontend-tester plugin
+    # 自動安裝 frontend-tester plugin（包含 Playwright MCP 配置）
     if [ "${AUTO_INSTALL_FRONTEND_TESTER:-true}" = "true" ]; then
       echo "Installing plugin: frontend-tester"
       if claude plugin install "frontend-tester@$MARKETPLACE_NAME" 2>/dev/null; then
         echo "✓ Installed plugin: frontend-tester"
+        echo "  - Playwright MCP Server enabled (via wrapper script)"
         echo "  - /test-spec: 執行前端測試"
         echo "  - /test-spec-template: 產生規格範本"
         echo "  - Agent: frontend-test-engineer"

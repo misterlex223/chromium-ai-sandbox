@@ -9,7 +9,9 @@
 - Playwright 自動化框架
 - Xvfb 虛擬顯示
 - VNC/noVNC 遠端查看
-- Microsoft Playwright MCP Server
+- **Frontend Tester Plugin**（含 Microsoft Playwright MCP Server）
+
+> **注意**: Playwright MCP Server 透過 `frontend-tester` plugin 提供，該 plugin 從 `aintandem-agent-team` marketplace 自動安裝。
 
 ## 核心能力
 
@@ -142,8 +144,9 @@ await browser.close();
 - 查看錯誤訊息並截圖
 
 ### MCP 工具無回應
-- 確認 `@playwright/mcp` 已安裝
-- 檢查 `/home/flexy/.claude/.mcp.json` 配置
+- 確認 `frontend-tester` plugin 已正確安裝：`claude plugin list`
+- 確認 `aintandem-agent-team` marketplace 已新增：`claude plugin marketplace list`
+- 檢查 wrapper script 存在：`ls -la /usr/local/bin/playwright-mcp-wrapper.sh`
 - 重新啟動 Claude Code
 
 ### VNC 連線失敗

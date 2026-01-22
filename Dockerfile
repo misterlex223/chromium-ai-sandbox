@@ -61,15 +61,18 @@ RUN npm install -g @playwright/mcp
 # 複製 chromium-sandbox 特定的腳本
 COPY scripts/start-xvfb.sh /scripts/start-xvfb.sh
 COPY scripts/test-chromium.sh /scripts/test-chromium.sh
-RUN sudo chmod +x /scripts/start-xvfb.sh /scripts/test-chromium.sh
+COPY scripts/playwright-mcp-wrapper.sh /usr/local/bin/playwright-mcp-wrapper.sh
+COPY scripts/generate-playwright-config.sh /usr/local/bin/generate-playwright-config.sh
+RUN sudo chmod +x /scripts/start-xvfb.sh /scripts/test-chromium.sh \
+    && sudo chmod +x /usr/local/bin/playwright-mcp-wrapper.sh \
+    && sudo chmod +x /usr/local/bin/generate-playwright-config.sh
 
 # 複製範例程式
 COPY examples/ /home/flexy/examples/
 RUN sudo chown -R flexy:flexy /home/flexy/examples
 
 # 複製 Claude Code 配置檔 (由 init-chromium-sandbox.sh 安裝到容器內)
-# MCP 配置 → /home/flexy/.claude/.mcp.json
-COPY config/.mcp.json /tmp/mcp-config.json
+# 注意: MCP 配置現由 frontend-tester plugin 提供
 # Skill 說明 → /home/flexy/.claude/skills/chromium-sandbox/SKILL.md
 COPY config/skill.md /tmp/claude-skill.md
 # 權限配置 → /home/flexy/.claude/settings.local.json
