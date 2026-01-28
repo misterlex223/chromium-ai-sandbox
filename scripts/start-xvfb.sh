@@ -37,6 +37,11 @@ if [ "$CHROMIUM_MODE" = "headless" ]; then
   exit 0
 fi
 
+# 清除 Xvfb 遺留的 lock 檔案 (避免 container 重啟時失敗)
+echo "Cleaning up stale Xvfb lock files..."
+rm -f /tmp/.X${DISPLAY_NUM}-lock
+rm -f /tmp/.X11-unix/X${DISPLAY_NUM}
+
 # 建立 Xvfb lock 目錄
 sudo mkdir -p /tmp/.X11-unix
 sudo chown -R flexy:flexy /tmp/.X11-unix
