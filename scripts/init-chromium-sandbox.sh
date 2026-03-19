@@ -191,10 +191,11 @@ echo ""
 # 檢查是否啟用 WebTTY 模式
 if [ "$ENABLE_WEBTTY" = "true" ]; then
   echo "========================================"
-  echo "  啟動 WebTTY 模式"
+  echo "  啟動 Zellij Web Server"
   echo "========================================"
-  echo "WebTTY 將在 http://localhost:9681 啟動"
+  echo "Web Shell 將在 https://localhost:9681 啟動"
   echo "工作目錄: $WORKING_DIRECTORY"
+  echo ""
 
   cd "$WORKING_DIRECTORY" || {
     echo "警告: 無法切換到工作目錄 $WORKING_DIRECTORY"
@@ -210,10 +211,77 @@ if [ "$ENABLE_WEBTTY" = "true" ]; then
   fi
 
   # 處理停止信號
-  trap "kill $COSPEC_PID $AI_MONITOR_PID 2>/dev/null; exit" SIGINT SIGTERM
+  trap "kill $COSPEC_PID $AI_MONITOR_PID 2>/dev/null; zellij delete-session -f shared_session 2>/dev/null; exit" SIGINT SIGTERM
 
   sleep 2
-  LANG=zh_TW.UTF-8 LC_ALL=zh_TW.UTF-8 ttyd -p 9681 -W tmux new -A -s shared_session
+
+  # Token database and file for persistence
+  TOKEN_DIR="$WORKING_DIRECTORY/.zellij-data"
+  TOKEN_FILE="$TOKEN_DIR/login_token.txt"
+  TOKEN_DB="$TOKEN_DIR/tokens.db"
+
+  # Create token directory if it doesn't exist
+  mkdir -p "$TOKEN_DIR"
+
+  # Copy persisted token database if exists
+  if [ -f "$TOKEN_DB" ]; then
+    echo "Restoring token database from workspace..."
+    cp "$TOKEN_DB" /home/flexy/.local/share/zellij/tokens.db
+    chown flexy:flexy /home/flexy/.local/share/zellij/tokens.db
+  fi
+
+  echo "========================================"
+  echo "  Zellij Web Client Starting..."
+  echo "========================================"
+  echo ""
+  echo "Web Client will be available at: https://localhost:9681"
+  echo "Session name: shared_session"
+  echo ""
+
+  # Determine token source: env var -> saved file -> auto-generate
+  if [ -n "$WEB_SHELL_TOKEN" ]; then
+    echo "Note: WEB_SHELL_TOKEN environment variable is set"
+    echo "Creating new token..."
+    TOKEN_OUTPUT=$(zellij web --create-token 2>&1)
+    SAVED_TOKEN=$(echo "$TOKEN_OUTPUT" | grep -oP 'token_\d+: \K[\w-]+' || echo "")
+    if [ -n "$SAVED_TOKEN" ]; then
+      echo "$SAVED_TOKEN" > "$TOKEN_FILE"
+      cp /home/flexy/.local/share/zellij/tokens.db "$TOKEN_DB"
+    fi
+  elif [ -f "$TOKEN_FILE" ] && [ -s "$TOKEN_FILE" ]; then
+    SAVED_TOKEN=$(cat "$TOKEN_FILE")
+    echo "Using persisted login token from $TOKEN_FILE..."
+  else
+    echo "No existing token found. Creating new login token..."
+    TOKEN_OUTPUT=$(zellij web --create-token 2>&1)
+    SAVED_TOKEN=$(echo "$TOKEN_OUTPUT" | grep -oP 'token_\d+: \K[\w-]+' || echo "")
+
+    if [ -n "$SAVED_TOKEN" ]; then
+      echo "$SAVED_TOKEN" > "$TOKEN_FILE"
+      cp /home/flexy/.local/share/zellij/tokens.db "$TOKEN_DB"
+      echo "Token saved to $TOKEN_FILE"
+      echo "Token database saved to $TOKEN_DB"
+    else
+      echo "Warning: Failed to create token automatically"
+      echo "You can create one inside Zellij with: Ctrl+o then s"
+    fi
+  fi
+
+  echo ""
+  echo "========================================"
+  echo "  LOGIN TOKEN"
+  echo "========================================"
+  if [ -n "$SAVED_TOKEN" ]; then
+    echo "$SAVED_TOKEN"
+  else
+    echo "(No token available - create one manually)"
+  fi
+  echo "========================================"
+  echo ""
+  echo "Starting Zellij Web Server..."
+
+  # Start the web server in foreground
+  exec zellij web
 else
   # 預設模式：切換到工作目錄並啟動 bash shell
   cd "$WORKING_DIRECTORY" || {
