@@ -1,6 +1,6 @@
 # Chromium-Sandbox Dockerfile
 # Extends the base Flexy Dev Sandbox image with Chromium automation capabilities
-FROM ghcr.io/misterlex223/flexy-sandbox:v2.0.0
+FROM ghcr.io/misterlex223/flexy-sandbox:2.0.0
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive

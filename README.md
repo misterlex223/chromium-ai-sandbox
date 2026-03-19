@@ -171,7 +171,7 @@ chromium-ai-sandbox/
 
 ## 基礎映像
 
-本專案基於 [ghcr.io/misterlex223/flexy-sandbox:v2.0.0](https://github.com/misterlex223/flexy-sandbox) 建構，繼承了以下功能：
+本專案基於 [ghcr.io/misterlex223/flexy-sandbox:2.0.0](https://github.com/misterlex223/flexy-sandbox) 建構，繼承了以下功能：
 
 - Node.js (最新 LTS)
 - Python 3
