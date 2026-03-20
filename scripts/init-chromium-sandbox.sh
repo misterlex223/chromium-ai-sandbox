@@ -211,7 +211,7 @@ if [ "$ENABLE_WEBTTY" = "true" ]; then
   fi
 
   # 處理停止信號
-  trap "kill $COSPEC_PID $AI_MONITOR_PID 2>/dev/null; zellij delete-session -f shared_session 2>/dev/null; exit" SIGINT SIGTERM
+  trap "kill $COSPEC_PID $AI_MONITOR_PID $PROXY_PID 2>/dev/null; zellij delete-session -f shared_session 2>/dev/null; exit" SIGINT SIGTERM
 
   sleep 2
 
@@ -277,6 +277,15 @@ if [ "$ENABLE_WEBTTY" = "true" ]; then
     echo "(No token available - create one manually)"
   fi
   echo "========================================"
+  echo ""
+  echo "Starting Zellij Web Proxy..."
+  echo "Proxy: 0.0.0.0:9681 -> 127.0.0.1:9682"
+
+  # Start the HTTP proxy in background
+  node /scripts/zellij-web-proxy.js &
+  PROXY_PID=$!
+  echo "Proxy started (PID: $PROXY_PID)"
+
   echo ""
   echo "Starting Zellij Web Server..."
 
